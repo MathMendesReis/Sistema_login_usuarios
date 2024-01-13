@@ -1,5 +1,6 @@
 package com.develop.app.security;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -7,28 +8,39 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+
+import com.develop.app.modules.user.security.SecurityFilterUser;
 
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
-    private static final String[] PERMIT_SWAGGER_UI = {
+
+    @Autowired
+    private SecurityFilterUser securityFilterUser;
+
+    private static final String[] PERMIT_ALL_LIST = {
       "/swagger-ui/**",
       "/v3/api-docs/**",
       "/swagger-resource/**",
-      "/actuator/**"
+      "/actuator/**",
   };
-    private static final String[] PERMIT_ALL_LIST = {
-      
+    private static final String[] PERMIT_USER_LIST = {
+      "/user/**",
   };
+  
 
   @Bean
   SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http.csrf(csrf -> csrf.disable())
         .authorizeHttpRequests(auth -> {
-          auth.requestMatchers(PERMIT_ALL_LIST).permitAll();
-          auth.requestMatchers(PERMIT_SWAGGER_UI).permitAll();
-          auth.anyRequest().authenticated();
-        });
+          auth.requestMatchers(PERMIT_ALL_LIST).permitAll()
+          .requestMatchers("/auth/**").permitAll()
+          .requestMatchers(PERMIT_USER_LIST).permitAll();
+             auth.anyRequest().authenticated()
+          ;
+        })
+        .addFilterBefore(securityFilterUser, BasicAuthenticationFilter.class);
     return http.build();
   }
 
