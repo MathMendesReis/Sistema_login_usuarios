@@ -11,5 +11,4 @@ import com.develop.app.modules.user.entity.UsersEntity;
 public interface UserRepository extends JpaRepository<UsersEntity, UUID>{
 
   Optional<UsersEntity> findByEmail(String email);
-  
 }

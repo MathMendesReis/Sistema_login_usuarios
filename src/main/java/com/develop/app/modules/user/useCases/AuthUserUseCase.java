@@ -6,8 +6,9 @@ import org.springframework.stereotype.Service;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.develop.app.modules.user.dto.AuthUserRequestDTO;
 import com.develop.app.modules.user.dto.AuthUserResponseDTO;
-import com.develop.app.modules.user.exceptions.UserEmailNotFoundException;
+import com.develop.app.modules.user.exceptions.UserNotFoundException;
 import com.develop.app.modules.user.repository.UserRepository;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -33,30 +34,34 @@ public class AuthUserUseCase {
   @Autowired
   private PasswordEncoder passwordEncoder;
 
-  public AuthUserResponseDTO execute() throws AuthenticationException {
-    var user = this.userRepository.findByEmail("").orElseThrow(()->{
-      throw new UserEmailNotFoundException();
+  public AuthUserResponseDTO execute(AuthUserRequestDTO authUserRequestDTO) throws AuthenticationException {
+    var user = this.userRepository.findByEmail(authUserRequestDTO.email()).orElseThrow(()->{
+      throw new UserNotFoundException();
     });
 
+    // Verificar senhas
     var passwordMatches = this.passwordEncoder
-    .matches("", user.getPassword());
+    .matches(authUserRequestDTO.password(), user.getPassword());
 
-    if (!passwordMatches) {
-      throw new AuthenticationException();
+    if (passwordMatches == false) {
+      throw new AuthenticationException("email/password incorrect");
     }
 
+    
+    // Gerar token
     Algorithm algorithm = Algorithm.HMAC256(secretKey);
-    var expiresIn = Instant.now().plus(Duration.ofMinutes(10));
+    var expiresIn = Instant.now().plus(Duration.ofHours(2));
+    
     var token = JWT.create()
         .withIssuer("javagas")
         .withSubject(user.getId().toString())
-        .withClaim("roles", Arrays.asList("USER"))
+        .withClaim("roles", Arrays.asList(user.getRole().toString()))
         .withExpiresAt(expiresIn)
         .sign(algorithm);
 
     var AuthUserResponse = AuthUserResponseDTO.builder()
         .access_token(token)
-        .expires_in(null)
+        .expires_in(expiresIn.toEpochMilli())
         .build();
 
     return AuthUserResponse;
