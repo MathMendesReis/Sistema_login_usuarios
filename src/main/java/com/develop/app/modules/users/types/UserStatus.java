@@ -1,11 +1,14 @@
 package com.develop.app.modules.users.types;
 
-public enum Status {
+import io.swagger.v3.oas.annotations.media.Schema;
+@Schema(example = "active")
+
+public enum UserStatus {
     ACTIVE("active");
 
     private String status;
 
-    Status(String status){
+    UserStatus(String status){
         this.status = status;
     }
 
