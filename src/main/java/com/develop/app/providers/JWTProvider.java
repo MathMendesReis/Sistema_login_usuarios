@@ -1,4 +1,4 @@
-package com.develop.app.modules.providers;
+package com.develop.app.providers;
 import org.springframework.beans.factory.annotation.Value;
 
 

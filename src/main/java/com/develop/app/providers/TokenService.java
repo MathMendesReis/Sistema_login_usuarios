@@ -1,4 +1,4 @@
-package com.develop.app.modules.providers;
+package com.develop.app.providers;
 
 import java.time.Duration;
 import java.time.Instant;

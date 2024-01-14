@@ -15,7 +15,7 @@ import jakarta.validation.Valid;
 
 @RequestMapping("/auth")
 @RestController
-@Tag(name = "Login de usuarios")
+@Tag(name = "Auth")
 public class AuthController {
     @Autowired
     private AuthUseCase authUseCase;

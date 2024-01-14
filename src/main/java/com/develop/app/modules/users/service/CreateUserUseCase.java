@@ -40,9 +40,6 @@ public class CreateUserUseCase {
         var password = passwordEncoder.encode(user.getPassword());
         user.setPassword(password);
 
-
-
-
         this.userRepository.save(user);
         return user;
     }

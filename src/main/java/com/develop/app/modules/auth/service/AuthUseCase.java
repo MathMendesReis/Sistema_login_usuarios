@@ -12,9 +12,9 @@ import org.springframework.stereotype.Service;
 
 import com.develop.app.modules.auth.dto.AuthRequestDTO;
 import com.develop.app.modules.auth.dto.AuthUserResponseDTO;
-import com.develop.app.modules.providers.TokenService;
 import com.develop.app.modules.users.UserRepository;
 import com.develop.app.modules.users.exceptions.UserNotFoundException;
+import com.develop.app.providers.TokenService;
 
 @Service
 public class AuthUseCase {
