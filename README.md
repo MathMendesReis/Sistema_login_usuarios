@@ -10,8 +10,6 @@ This project is an API built using **Java, Java Spring Simple Storage Service.**
 - [Installation](#installation)
 - [Configuration](#configuration)
 - [Usage](#usage)
-- [API Endpoints](#api-endpoints)
-- [Database](#database)
 - [Contributing](#contributing)
 
 ## Installation
@@ -26,13 +24,24 @@ git clone https://github.com/MathMendesReis/Sistema_login_usuarios.git
 
 **Config Values**
 
+## Configuration
+
+1. Instale as dependências com o Maven:
+
+```bash
+mvn install
+```
+
 ## Usage
 
 1. Start the application with Maven
+
+```bash
+mvn spring-boot:run
+```
+
 2. The API will be accessible at http://localhost:8080
 
-## API Endpoints
-The API provides the following endpoints:
 
 **API USER**
 1. API documentation will be accessible at http://localhost:8080/swagger-ui/index.html#/User
