@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.develop.app.providers.JWTAuthenticationService;
 import com.develop.app.providers.JWTUserProvider;
 
 import jakarta.servlet.FilterChain;
@@ -22,35 +23,37 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component
 public class SecurityUserFilter extends OncePerRequestFilter {
 
+    private  final static String atrribute = "user_id";
+    private  final static String prefix = "/user";
+    private final static String requestName = "Authorization";
+
     @Autowired
     private JWTUserProvider jwtProvider;
 
-    private static final List<String> PERMIT_ALL_LIST = Arrays.asList("/user/delete");
-
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
-        String header = request.getHeader("Authorization");
-        Boolean isPermittedRoute = PERMIT_ALL_LIST.stream().anyMatch(request.getRequestURI()::startsWith);
-        if (isPermittedRoute) {
-            Boolean isHeader = header != null;
-            if (isHeader) {
-                DecodedJWT token = this.jwtProvider.validateToken(header);
-                Boolean isToken = token == null;
-                if (isToken) {
-                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    return;
-                }
-                request.setAttribute("user_id", token.getSubject());
-                var roles = token.getClaim("roles").asList(Object.class);
-                var grants = roles.stream()
-                        .map(role -> new SimpleGrantedAuthority("ROLE_" + role.toString().toUpperCase()))
-                        .toList();
-                UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(token.getSubject(), null,
-                        grants);
-                SecurityContextHolder.getContext().setAuthentication(auth);
+     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+             throws ServletException, IOException {
+
+         String header = request.getHeader(requestName);
+         Boolean isPrefix = request.getRequestURI().startsWith(prefix);
+
+         if (isPrefix) {
+             validateHeader(header, request, response,atrribute);
+         }
+         filterChain.doFilter(request, response);
+     }
+    private void validateHeader(String header, HttpServletRequest request, HttpServletResponse response, String atrribute) {
+
+        Boolean isHeaderNull = header != null;
+
+        if (isHeaderNull) {
+            DecodedJWT token = jwtProvider.validateToken(header);
+            if (token == null) {
+                JWTAuthenticationService.setUnauthorizedResponse(response);
+                return;
             }
+            JWTAuthenticationService.setUserIdAttribute(request, token,atrribute);
+            JWTAuthenticationService.setAuthentication(token);
         }
-        filterChain.doFilter(request, response);
     }
 }
